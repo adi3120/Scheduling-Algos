@@ -111,3 +111,21 @@ if st.session_state.p!=[]:
 		st.latex(r"=\frac{"+s+"}{"+str(len(st.session_state.p))+"}="+str(av))
 
 
+footer="""<style>
+
+
+.footer {
+position:fixed;
+left: 0;
+bottom: 0;
+width: 100%;
+background-color: black;
+color: white;
+text-align: center;
+}
+</style>
+<div class="footer">
+<p>Developed with ❤️ by Aditya Yadav</p>
+</div>
+"""
+st.markdown(footer,unsafe_allow_html=True)
