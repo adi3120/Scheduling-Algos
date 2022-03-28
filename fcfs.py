@@ -73,7 +73,7 @@ if st.session_state.p!=[]:
 
 
 	if but:
-		sort_acc_to_arrival()
+		# sort_acc_to_arrival()
 		# st.dataframe(df)
 
 		calc_waiting_time()
