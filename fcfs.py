@@ -15,7 +15,7 @@ class Process():
 
 def sort_acc_to_arrival():
 	for i in range(0,len(st.session_state.p)-1):
-		for j in range(0,len(st.session_state.p)-1):
+		for j in range(0,len(st.session_state.p)-1-i):
 			if st.session_state.p[j].at>st.session_state.p[j+1].at:
 				p[j],p[j+1]=p[j+1],p[j]
 
