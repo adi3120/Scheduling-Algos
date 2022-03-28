@@ -3,61 +3,111 @@ import numpy as np
 import pandas as pd
 
 class Process():
-	def __init__(self,wt=0,bt=0,at=0,pid=0):
+	def __init__(self,wt=0,bt=0,at=0,pid=0,tat=0):
 		self.bt=bt
 		self.wt=wt 
 		self.at=at 
 		self.pid=pid
+		self.tat=tat
 
 	def __str__(self):
 		return self.bt
 
+def sort_acc_to_arrival():
+	for i in range(0,len(st.session_state.p)-1):
+		for j in range(0,len(st.session_state.p)-1):
+			if st.session_state.p[j].at>st.session_state.p[j+1].at:
+				p[j],p[j+1]=p[j+1],p[j]
+
+
 def calc_waiting_time():
 	t=0
-	for i in range(1,len(p)):
-		p[i].wt=p[i-1].wt+p[i-1].bt
-	for i in range(0,len(p)):
-		p[i].wt-=p[i].at
+	for i in range(1,len(st.session_state.p)):
+		st.session_state.p[i].wt=st.session_state.p[i-1].wt+st.session_state.p[i-1].bt
+	for i in range(0,len(st.session_state.p)):
+		st.session_state.p[i].wt-=st.session_state.p[i].at
+
+def calc_turnaround_time():
+	for i in st.session_state.p:
+		i.tat=i.wt+i.bt;
+
+def get_dataframe(data,columns):
+	return pd.DataFrame(data,columns=columns)
 
 st.title("FCFS Scheduling")
-p=[
-	Process(bt=3,at=0,pid=1),
-	Process(bt=8,at=1,pid=2),
-	Process(bt=6,at=2,pid=3),
-	Process(bt=4,at=4,pid=4),
-	Process(bt=2,at=5,pid=5),
-]
 
+p=[]
 data=[]
 
-for i in range(len(p)):
-	data.append([p[i].pid,p[i].bt,p[i].at])
+if 'p' not in st.session_state:
+    st.session_state.p = []
+if 'data' not in st.session_state:
+    st.session_state.data = []
 
-df=pd.DataFrame(data,columns=["Process",'Burst Time',"Arrival Time"])
 
+pid=st.number_input("Enter Pid",step=1)
+bt=st.number_input("Enter Burst Time",step=1)
+at=st.number_input("Enter arrival Time",step=1)
+
+add=st.button("Add process")
+clr=st.button("Clear Table")
+
+if clr:
+	st.session_state.p = []
+	st.session_state.data = []
+
+if add:
+	st.session_state.p.append(Process(pid=pid,bt=bt,at=at))
+
+
+for i in range(len(st.session_state.p)):
+	data.append([st.session_state.p[i].pid,st.session_state.p[i].bt,st.session_state.p[i].at])
+
+df=get_dataframe(data,["Process",'Burst Time',"Arrival Time"])
+
+st.header("Process Table")
 st.dataframe(df)
 
-but=st.button("Calculate Waiting Time")
+if st.session_state.p!=[]:
+	but=st.button("Calculate Waiting Time & Turnaround Time")
 
-if but:
-	calc_waiting_time()
-	data=[]
-	del df
-	for i in range(len(p)):
-		data.append([p[i].pid,p[i].wt])
 
-	df2=pd.DataFrame(data,columns=["Process","Waiting Time"])
-	st.dataframe(df2)
+	if but:
+		sort_acc_to_arrival()
+		# st.dataframe(df)
 
-	st.header("Average waiting time")
+		calc_waiting_time()
+		calc_turnaround_time()
+		data=[]
+		del df
+		for i in range(len(st.session_state.p)):
+			data.append([st.session_state.p[i].pid,st.session_state.p[i].wt,st.session_state.p[i].tat])
 
-	s=""
-	av=0
-	for i in p:
-		av+=i.wt
-		s+=str(i.wt)
-		if i.pid<len(p):
-			s+="+"
-	av=av/len(p)
-	st.latex(r"=\frac{"+s+"}{"+str(len(p))+"}="+str(av))
+		df2=get_dataframe(data,["Process","Waiting Time","Turnaround Time"])
+		st.dataframe(df2)
+
+		st.header("Average waiting time")
+
+		s=""
+		av=0
+		for i in st.session_state.p:
+			av+=i.wt
+			s+=str(i.wt)
+			if i.pid<len(st.session_state.p):
+				s+="+"
+		av=av/len(st.session_state.p)
+		st.latex(r"=\frac{"+s+"}{"+str(len(st.session_state.p))+"}="+str(av))
+
+		st.header("Average Turnaround time")
+
+		s=""
+		av=0
+		for i in st.session_state.p:
+			av+=i.tat
+			s+=str(i.tat)
+			if i.pid<len(st.session_state.p):
+				s+="+"
+		av=av/len(st.session_state.p)
+		st.latex(r"=\frac{"+s+"}{"+str(len(st.session_state.p))+"}="+str(av))
+
 
